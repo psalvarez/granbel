@@ -2,14 +2,14 @@
   ==============================================================================
 
     This file was auto-generated!
-
+|
     It contains the basic framework code for a JUCE plugin processor.
 
   ==============================================================================
 */
 
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
+//#include "PluginEditor.h"
 
 //==============================================================================
 GranbelAudioProcessor::GranbelAudioProcessor()
@@ -44,8 +44,7 @@ const String GranbelAudioProcessor::getName() const
 bool GranbelAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
-    return true;
-   #else
+    return true; #else
     return false;
    #endif
 }
@@ -172,7 +171,8 @@ bool GranbelAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* GranbelAudioProcessor::createEditor()
 {
-    return new GranbelAudioProcessorEditor (*this);
+    //return new GranbelAudioProcessorEditor (*this);
+    return new GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
