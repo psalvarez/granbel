@@ -55,6 +55,10 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    float downsample(float current, float prev, int sample);
+    float bitcrush(float sample_data);
+
 private:
     //==============================================================================
     juce::AudioParameterFloat* gain;

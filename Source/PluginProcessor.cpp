@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 //#include "PluginEditor.h"
+#include <math.h>
 
 //==============================================================================
 GranbelAudioProcessor::GranbelAudioProcessor()
@@ -97,6 +98,21 @@ void GranbelAudioProcessor::changeProgramName (int index, const String& newName)
 }
 
 //==============================================================================
+float GranbelAudioProcessor::downsample(float current, float prev, int sample)
+{
+    if ((sample % 2) == 0)
+    {
+        current = prev;
+    }
+    return current;
+}
+
+float GranbelAudioProcessor::bitcrush(float sample_data)
+{
+    return roundf(sample_data * 10) / 10;
+}
+
+//==============================================================================
 void GranbelAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
@@ -156,9 +172,14 @@ void GranbelAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        //auto* channelData = buffer.getWritePointer (channel);
+        auto* channelData = buffer.getWritePointer (channel);
+        // Bitcrushing
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample )
+        {
+            // channelData[sample] = GranbelAudioProcessor::downsample(channelData[sample], channelData[sample - 1], sample);
+            channelData[sample] = GranbelAudioProcessor::bitcrush(channelData[sample]);
+        }
 
-        // ..do something to the data...
     }
     buffer.applyGain(*gain);
 }
