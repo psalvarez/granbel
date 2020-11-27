@@ -25,11 +25,8 @@ GranbelAudioProcessor::GranbelAudioProcessor()
                        )
 #endif
 {
-    addParameter (gain = new juce::AudioParameterFloat("gain",
-                                                      "Gain",
-                                                      0.0f,
-                                                      1.0f,
-                                                      0.5f));
+    addParameter (gain = new juce::AudioParameterFloat("gain", "Gain", 0.0f, 1.0f, 0.5f));
+    addParameter (sampleRed = new juce::AudioParameterInt("sampleRed", "Sample Reduction", 1, 6, 2));
 }
 
 GranbelAudioProcessor::~GranbelAudioProcessor()
@@ -98,13 +95,19 @@ void GranbelAudioProcessor::changeProgramName (int index, const String& newName)
 }
 
 //==============================================================================
-float GranbelAudioProcessor::downsample(float current, float prev, int sample)
+void GranbelAudioProcessor::downsample(float* channelData, int numSamples)
 {
-    if ((sample % 2) == 0)
+    // int sampleRedux = 2;
+    float holdValue = 0;
+    for (int sample = 0; sample < numSamples; ++sample)
     {
-        current = prev;
+        if ((sample % *sampleRed) == 0)
+        {
+            holdValue = channelData[sample];
+        } else {
+            channelData[sample] = holdValue;
+        }
     }
-    return current;
 }
 
 float GranbelAudioProcessor::bitcrush(float sample_data)
@@ -172,13 +175,9 @@ void GranbelAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-        // Bitcrushing
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample )
-        {
-            // channelData[sample] = GranbelAudioProcessor::downsample(channelData[sample], channelData[sample - 1], sample);
-            channelData[sample] = GranbelAudioProcessor::bitcrush(channelData[sample]);
-        }
+        float* channelData = buffer.getWritePointer (channel);
+        GranbelAudioProcessor::downsample(channelData, buffer.getNumSamples());
+        GranbelAudioProcessor::bitcrush(channelData[sample]);
 
     }
     buffer.applyGain(*gain);

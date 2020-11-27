@@ -56,12 +56,13 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    float downsample(float current, float prev, int sample);
+    void downsample(float* channelData, int numSamples);
     float bitcrush(float sample_data);
 
 private:
     //==============================================================================
     juce::AudioParameterFloat* gain;
+    juce::AudioParameterInt* sampleRed;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranbelAudioProcessor)
