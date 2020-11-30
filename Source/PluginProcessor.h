@@ -57,12 +57,13 @@ public:
 
     //==============================================================================
     void downsample(float* channelData, int numSamples);
-    float bitcrush(float sample_data);
+    void bitcrush(float* channelData, int numSamples);
 
 private:
     //==============================================================================
     juce::AudioParameterFloat* gain;
     juce::AudioParameterInt* sampleRed;
+    juce::AudioParameterInt* redux;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranbelAudioProcessor)

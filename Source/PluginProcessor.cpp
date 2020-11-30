@@ -27,6 +27,7 @@ GranbelAudioProcessor::GranbelAudioProcessor()
 {
     addParameter (gain = new juce::AudioParameterFloat("gain", "Gain", 0.0f, 1.0f, 0.5f));
     addParameter (sampleRed = new juce::AudioParameterInt("sampleRed", "Sample Reduction", 1, 6, 2));
+    addParameter (redux = new juce::AudioParameterInt("redux", "Bit Reduction", 2, 256, 256));
 }
 
 GranbelAudioProcessor::~GranbelAudioProcessor()
@@ -99,20 +100,29 @@ void GranbelAudioProcessor::downsample(float* channelData, int numSamples)
 {
     // int sampleRedux = 2;
     float holdValue = 0;
-    for (int sample = 0; sample < numSamples; ++sample)
+    if (*sampleRed != 0)
     {
-        if ((sample % *sampleRed) == 0)
+        for (int sample = 0; sample < numSamples; ++sample)
         {
-            holdValue = channelData[sample];
-        } else {
-            channelData[sample] = holdValue;
+            if ((sample % *sampleRed) == 0)
+            {
+                holdValue = channelData[sample];
+            } else {
+                channelData[sample] = holdValue;
+            }
         }
     }
 }
 
-float GranbelAudioProcessor::bitcrush(float sample_data)
+void GranbelAudioProcessor::bitcrush(float* channelData, int numSamples)
 {
-    return roundf(sample_data * 10) / 10;
+    if (*redux != 0)
+    {
+        for (int sample = 0; sample < numSamples; ++sample)
+        {
+            channelData[sample] = roundf(channelData[sample] * (*redux)) / *redux;
+        }
+    }
 }
 
 //==============================================================================
@@ -159,26 +169,15 @@ void GranbelAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // channels that didn't contain input data.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = buffer.getWritePointer (channel);
         GranbelAudioProcessor::downsample(channelData, buffer.getNumSamples());
-        GranbelAudioProcessor::bitcrush(channelData[sample]);
-
+        GranbelAudioProcessor::bitcrush(channelData, buffer.getNumSamples());
     }
     buffer.applyGain(*gain);
 }
