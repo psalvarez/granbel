@@ -3,3 +3,4 @@ Builds/
 *jucer
 .vscode
 notes.md
+*.filtergraph
