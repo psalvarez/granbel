@@ -60,6 +60,7 @@ public:
     // void bitcrush(float* channelData, int numSamples);
     // void bitcrush(float& sample);
     float bitcrush(float sample);
+    float windowFunc(int sampleIdx, int numSamples);
     void processChannel(float* channelData, int numSamples);
 
 private:
@@ -68,6 +69,7 @@ private:
     juce::AudioParameterInt* sampleRed;
     juce::AudioParameterInt* redux;
     juce::AudioParameterInt* grainSize;
+    Waveshaper ws;
     bool processState = true;
     int grainCounter = 0;
     
