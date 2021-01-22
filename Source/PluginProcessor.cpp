@@ -157,8 +157,9 @@ void GranbelAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    std::string distName("poly");
+    ws.setDistMode(distName);
     ws.setGain(0.7);
-    ws.setDistMode("poly");
 }
 
 void GranbelAudioProcessor::releaseResources()
