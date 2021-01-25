@@ -4,3 +4,4 @@ Builds/
 .vscode
 notes.md
 *.filtergraph
+test_recordings/

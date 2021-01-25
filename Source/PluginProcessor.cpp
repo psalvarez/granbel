@@ -135,20 +135,10 @@ void GranbelAudioProcessor::processChannel(float* channelData, int numSamples)
 {
     for (int sample = 0; sample < numSamples; ++sample)
     {
-        if (processState == true)
-        {
-            channelData[sample] = bitcrush(channelData[sample]);
-            // channelData[sample] = 0;
-        } else {
-            channelData[sample] = ws.processWaveshape(channelData[sample]);
-        }
-        channelData[sample] = windowFunc(grainCounter, *grainSize) * channelData[sample];
+        channelData[sample] = windowFunc(grainCounter, *grainSize) * bitcrush(channelData[sample]) \
+            + windowFunc(grainCounter + (roundf(*grainSize/2.0)), *grainSize) * ws.processWaveshape(channelData[sample]);
         ++grainCounter;
-        if (grainCounter >= *grainSize)
-        {
-            processState = !processState;
-            grainCounter = 0;
-        }
+        grainCounter = (grainCounter % *grainSize);
     }
 }
 
