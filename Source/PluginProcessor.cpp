@@ -135,7 +135,8 @@ void GranbelAudioProcessor::processChannel(float* channelData, int numSamples)
 {
     for (int sample = 0; sample < numSamples; ++sample)
     {
-        channelData[sample] = channelData[sample] * windowFunc(grainCounter, *grainSize);
+        channelData[sample] = channelData[sample] * windowFunc(grainCounter, *grainSize) + channelData[sample] * windowFunc((grainCounter * (*grainSize / 2)) % *grainSize, *grainSize);
+
         // The function below creates a cool distortion. Still haven't figured out proper windowing though
         // channelData[sample] = windowFunc(grainCounter, *grainSize) * bitcrush(channelData[sample]) \
             + windowFunc(int(grainCounter + (roundf(*grainSize/2.0))) % *grainSize, *grainSize) * ws.processWaveshape(channelData[sample]);
